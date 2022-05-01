@@ -2,7 +2,13 @@
 <html>
   <link rel="stylesheet" href="styles.css">
   <head>
+    <meta name="description" content="Default meta description">
     <title>Niki says...</title>
+    <meta property="og:title" content="Niki says:" />
+    <meta property="og:url" content="https://niki-says.herokuapp.com" />
+    <meta property="og:description" content="Stuff Niki would say...">
+    <meta property="og:image" content="images/niki-smug1-preview.png">
+    <meta property="og:type" content="website" />
   </head>
   <body>
     <div class="container">
@@ -11,11 +17,11 @@
               <div id="testimonial-slider" class="owl-carousel">
                   <div class="testimonial">
                       <div class="pic">
-                          <img src="images/niki1.png">
+                          <img src="images/niki-smug1-web.png">
                       </div>
                       <h3 class="title">Niki says:</h3>
                       <p class="description">
-                        <div id="quoteDisplay">
+                        <div id="quoteDisplay" class="post">
                           <!-- Quotes will display here -->
                         </div>
                       </p>
@@ -25,6 +31,6 @@
           </div>
       </div>
     </div>
-  <script src="javascript.js"></script>
+    <script src="js/javascript.js"></script>
   </body>
 </html>
