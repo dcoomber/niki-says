@@ -1,16 +1,35 @@
-require('dotenv').config(); // read .env files
 const express = require('express');
+const Database = require('better-sqlite3');
+const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const db = new Database('quotes.db');
 
-// Set public folder as root
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 
-// Allow front-end access to node_modules folder
-app.use('/scripts', express.static(`${__dirname}/node_modules/`));
+app.get('/msg', (req, res) => {
+    const stmt = db.prepare('SELECT content AS text FROM quotes WHERE id = ?');
+    const row = stmt.get(req.query.id);
+    if (row) {
+        res.json(row);
+    } else {
+        res.status(404).json({ error: 'not found' });
+    }
+});
 
-// Listen for HTTP requests on port 3000
-app.listen(port, () => {
-  console.log('listening on %d', port);
+app.get('/search', (req, res) => {
+    const stmt = db.prepare('SELECT id, content AS text FROM quotes WHERE content LIKE ?');
+    const rows = stmt.all(`%${req.query.q}%`);
+    res.json(rows);
+});
+
+app.get('/random', (req, res) => {
+    const stmt = db.prepare('SELECT content AS text FROM quotes ORDER BY RANDOM() LIMIT 1');
+    const row = stmt.get();
+    res.json(row);
+});
+
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });
