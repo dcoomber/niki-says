@@ -46,7 +46,7 @@ document.getElementById('searchButton').addEventListener('click', () => {
             searchResults.innerHTML = '';
             results.forEach(result => {
                 const link = document.createElement('a');
-                link.href = '/msg?id=' + result.id;
+                link.href = '/?id=' + result.id;
                 link.textContent = result.text.substring(0, 60) + (result.text.length > 60 ? '...' : '');
                 link.style.display = 'block';
                 link.style.marginBottom = '10px';
@@ -54,7 +54,7 @@ document.getElementById('searchButton').addEventListener('click', () => {
                 link.style.color = '#0070f3';
                 link.addEventListener('click', (event) => {
                     event.preventDefault();
-                    history.pushState(null, '', '/msg?id=' + result.id);
+                    history.pushState(null, '', '/?id=' + result.id);
                     displayQuoteById(result.id);
                 });
                 searchResults.appendChild(link);
