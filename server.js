@@ -23,32 +23,27 @@ function baseUrl(req) {
     return `${proto}://${host}`;
 }
 
-// Homepage. Link unfurlers (WhatsApp, Slack, iMessage, Facebook...) do NOT run JavaScript,
-// so the per-quote preview must be baked into the HTML server-side. When ?id= is present we
-// inject the quote text into the description/og:description tags before serving index.html.
 // Declared BEFORE express.static so it owns '/'; all other assets fall through to static.
+// Link unfurlers (WhatsApp, Slack, iMessage...) don't run JS, so OG tags are injected server-side.
 app.get('/', (req, res) => {
-    let html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
     const base = baseUrl(req);
     const id = req.query.id;
+    let desc = 'Stuff Niki would say...';
     let ogUrl = `${base}/`;
 
     if (id) {
         const row = db.prepare('SELECT content AS text FROM quotes WHERE id = ?').get(id);
         if (row) {
             const full = row.text;
-            const desc = escapeAttr(full.length > 200 ? full.slice(0, 197) + '...' : full);
+            desc = escapeAttr(full.length > 200 ? full.slice(0, 197) + '...' : full);
             ogUrl = `${base}/?id=${encodeURIComponent(id)}`;
-            html = html
-                .replace(/<meta name="description"[^>]*>/i, `<meta name="description" content="${desc}">`)
-                .replace(/<meta property="og:description"[^>]*\/?>/i, `<meta property="og:description" content="${desc}" />`);
         }
     }
 
-    // OG image/url must be absolute for previews to render; rewrite them on every response.
-    html = html
-        .replace(/<meta property="og:url"[^>]*\/?>/i, `<meta property="og:url" content="${escapeAttr(ogUrl)}" />`)
-        .replace(/<meta property="og:image"[^>]*\/?>/i, `<meta property="og:image" content="${base}/images/niki-smug1-preview.png" />`);
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8')
+        .replaceAll('__OG_DESC__', desc)
+        .replace('__OG_URL__', escapeAttr(ogUrl))
+        .replace('__OG_IMAGE__', `${base}/images/niki-og.png`);
 
     res.set('Content-Type', 'text/html; charset=UTF-8');
     res.send(html);
